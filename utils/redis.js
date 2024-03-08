@@ -44,6 +44,7 @@ class RedisClient {
     } catch (error) {
       console.error(`Error: Failed to get the value for key: ${key}`);
     }
+    return null;
   }
 
   async set(key, value, duration) {
