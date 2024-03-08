@@ -2,7 +2,7 @@
 import { MongoClient } from 'mongodb';
 
 /**
- * A mongoDb connection class.
+ * A mongoDB connection class.
  */
 class DBClient {
   constructor() {
