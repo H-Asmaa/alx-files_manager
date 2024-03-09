@@ -1,12 +1,11 @@
-#!/usr/bin/node
 import express from 'express';
 import AppController from '../controllers/AppController';
 import UsersController from '../controllers/UsersController';
 
 const router = (app) => {
   const route = express.Router();
-  app.use(express.json());
 
+  app.use(express.json());
   app.use('/', route);
 
   route.get('/', () => router);
