@@ -2,11 +2,11 @@
 import express from 'express';
 import AppController from '../controllers/AppController';
 
-export default (app) => {
-  const route = express.Router();
-  app.use(express.json());
-  app.use('/', route);
+const router = express.Router();
 
-  route.get('/status', (req, res) => AppController.getStatus(req, res));
-  route.get('/stats', (req, res) => AppController.getStats(req, res));
+router.get('/status', (req, res) => AppController.getStatus(req, res));
+router.get('/stats', (req, res) => AppController.getStats(req, res));
+
+export default (app) => {
+  app.use(router);
 };
