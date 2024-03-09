@@ -5,7 +5,8 @@ import routes from './routes/index';
 const server = express();
 const port = process.env.PORT || 5000;
 
-routes(server);
+server.use(express.json());
+server.use(routes);
 
 server.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
