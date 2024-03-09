@@ -3,10 +3,16 @@ import express from 'express';
 import AppController from '../controllers/AppController';
 import UsersController from '../controllers/UsersController';
 
-const router = express.Router();
+const router = (app) => {
+  const route = express.Router();
+  app.use(express.json());
 
-router.get('/status', (req, res) => AppController.getStatus(req, res));
-router.get('/stats', (req, res) => AppController.getStats(req, res));
-router.post('/users', (req, res) => UsersController.postUser(req, res));
+  app.use('/', route);
+
+  route.get('/', () => router);
+  route.get('/status', (req, res) => AppController.getStatus(req, res));
+  route.get('/stats', (req, res) => AppController.getStats(req, res));
+  route.post('/users', (req, res) => UsersController.postUser(req, res));
+};
 
 export default router;
