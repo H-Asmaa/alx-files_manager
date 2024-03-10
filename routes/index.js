@@ -1,17 +1,17 @@
 import express from 'express';
 import AppController from '../controllers/AppController';
 import UsersController from '../controllers/UsersController';
+// import AuthController from '../controllers/AuthController';
 
-const router = (app) => {
-  const route = express.Router();
+const router = express.Router();
 
-  app.use(express.json());
-  app.use('/', route);
+router.get('/', () => router);
+router.get('/status', (req, res) => AppController.getStatus(req, res));
+router.get('/stats', (req, res) => AppController.getStats(req, res));
+router.post('/users', (req, res) => UsersController.postUser(req, res));
 
-  route.get('/', () => router);
-  route.get('/status', (req, res) => AppController.getStatus(req, res));
-  route.get('/stats', (req, res) => AppController.getStats(req, res));
-  route.post('/users', (req, res) => UsersController.postUser(req, res));
-};
+// router.get('/connect', (req, res) => AuthController.getConnect(req, res));
+// router.get('/disconnect', (req, res) => AuthController.getDisconnect(req, res));
+// router.get('/users/me ', (req, res) => UsersController.getMe(req, res));
 
 export default router;
