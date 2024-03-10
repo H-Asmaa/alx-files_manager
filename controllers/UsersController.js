@@ -1,6 +1,7 @@
 #!/usr/bin/node
 import sha1 from 'sha1';
 import dbClient from '../utils/db';
+import redisClient from '../utils/redis';
 
 const UsersController = {
   async postUser(req, res) {
@@ -19,6 +20,17 @@ const UsersController = {
       password: hashedPassword,
     });
     return res.status(201).send({ id: insertedUser.insertedId, email });
+  },
+
+  async getMe(request, response) {
+    const token = request.header('x-token');
+    if (!token) return response.status(401).send({ error: 'Unauthorized' });
+
+    const redisUser = await redisClient.get(`auth_${token}`);
+    if (!redisUser) return response.status(401).send({ error: 'Unauthorized' });
+
+    const user = JSON.parse(redisUser);
+    return response.status(200).send({ id: user._id, email: user.email });
   },
 };
 
