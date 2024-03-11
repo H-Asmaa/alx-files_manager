@@ -23,7 +23,7 @@ const UsersController = {
   },
 
   async getMe(request, response) {
-    const token = request.header('x-token');
+    const token = request.header('X-Token');
     if (!token) return response.status(401).send({ error: 'Unauthorized' });
 
     const redisUserId = await redisClient.get(`auth_${token}`);
