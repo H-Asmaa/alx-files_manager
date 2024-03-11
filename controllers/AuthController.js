@@ -11,8 +11,10 @@ const AuthController = {
       const decode = Buffer.from(extracter, 'base64').toString('utf-8');
       const [email, password] = decode.split(':');
       const hash = sha1(password);
+
       const user = await dbClient.db.collection('users').findOne({ email, password: hash });
       if (!user) return res.status(401).send({ error: 'Unauthorized' });
+
       const token = uuidv4();
       const key = `auth_${token}`;
       await redisClient.set(key, JSON.stringify(user), 864000);
