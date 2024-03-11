@@ -9,7 +9,10 @@ const AuthController = {
     if (basicAuth && typeof basicAuth === 'string' && basicAuth.startsWith('Basic ')) {
       const extracter = basicAuth.split(' ')[1];
       const decode = Buffer.from(extracter, 'base64').toString('utf-8');
+
       const [email, password] = decode.split(':');
+      if (!email || !password) return res.status(401).send({ error: 'Unauthorized' });
+
       const hash = sha1(password);
 
       const user = await dbClient.db.collection('users').findOne({ email, password: hash });
