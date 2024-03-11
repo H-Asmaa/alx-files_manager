@@ -22,15 +22,17 @@ const UsersController = {
     return res.status(201).send({ id: insertedUser.insertedId, email });
   },
 
-  async getMe(request, response) {
-    const token = request.header('X-Token');
-    if (!token) return response.status(401).send({ error: 'Unauthorized' });
+  async getMe(req, res) {
+    const token = req.header('X-Token');
+    if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
     const redisUserId = await redisClient.get(`auth_${token}`);
-    if (!redisUserId) return response.status(401).send({ error: 'Unauthorized' });
+    if (!redisUserId) return res.status(401).send({ error: 'Unauthorized' });
 
     const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(redisUserId) });
-    return response.status(200).send({ id: user._id, email: user.email });
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
+
+    return res.status(200).send({ id: user._id, email: user.email });
   },
 };
 
