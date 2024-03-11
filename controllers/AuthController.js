@@ -20,7 +20,7 @@ const AuthController = {
       await redisClient.set(key, user._id.toString(), 864000);
       return res.status(200).send({ token });
     }
-    return null;
+    return res.status(401).send({ error: 'Unauthorized' });
   },
 
   async getDisconnect(req, res) {
