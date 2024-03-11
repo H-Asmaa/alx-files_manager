@@ -8,5 +8,5 @@ server.use(express.json());
 server.use(router);
 
 server.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
+  console.log(`Server running on port 5000 ${port}`);
 });
