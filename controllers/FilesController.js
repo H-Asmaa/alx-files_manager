@@ -40,21 +40,21 @@ const FilesController = {
 
     const isPublic = req.body.isPublic || false;
     // console.log(isPublic);
-
+    // console.log(parentId);
     const fileToStore = {
-      userId: redisUserId,
+      userId: ObjectId(redisUserId),
       name,
       type,
       isPublic,
-      parentId,
+      parentId: ObjectId(parentId),
     };
     // console.log('fileToStore: '+fileToStore);
 
     if (type === 'folder') {
       // console.log('type is folder.');
-      await dbClient.db.collection('files').insertOne(fileToStore);
+      const file = await dbClient.db.collection('files').insertOne(fileToStore);
       return res.status(201).send({
-        id: fileToStore._id,
+        id: file.insertedId,
         userId: fileToStore.userId,
         name: fileToStore.name,
         type: fileToStore.type,
@@ -85,11 +85,11 @@ const FilesController = {
     });
 
     fileToStore.localPath = filePath;
-    // console.log('fileToStore: '+fileToStore);
-    await dbClient.db.collection('files').insertOne(fileToStore);
-
+    // console.log('fileToStore: '+fileToStore.parentId);
+    const file = await dbClient.db.collection('files').insertOne(fileToStore);
+    // console.log('insertedId '+ file.insertedId);
     return res.status(201).send({
-      id: fileToStore._id,
+      id: file.insertedId,
       userId: fileToStore.userId,
       name: fileToStore.name,
       type: fileToStore.type,
@@ -106,15 +106,16 @@ const FilesController = {
     const userId = await redisClient.get(`auth_${token}`);
     if (!userId) return res.status(401).send({ error: 'Unauthorized' });
 
-    const user = await dbClient.db
-      .collection('users')
-      .findOne({ _id: ObjectId(userId) });
-    if (!user) return res.status(401).send({ error: 'Unauthorized' });
+    // const user = await dbClient.db
+    //   .collection('users')
+    //   .findOne({ _id: ObjectId(userId) });
+    // if (!user) return res.status(401).send({ error: 'Unauthorized' });
 
-    const { parentId } = req.query;
+    const fileId = req.params.id;
+    // console.log(fileId);
     const file = await dbClient.db
       .collection('files')
-      .findOne({ _id: ObjectId(parentId), userId: user._id });
+      .findOne({ _id: ObjectId(fileId), userId: ObjectId(userId) });
     if (!file) return res.status(404).send({ error: 'Not found' });
 
     return res.send({
