@@ -153,6 +153,7 @@ const FilesController = {
       .countDocuments({
         userId: ObjectId(userId),
         parentId,
+        type: 'folder',
       });
     // console.log('fileCount: '+fileCount);
     if (!fileCount) return res.status(200).send([]);
