@@ -116,7 +116,7 @@ const FilesController = {
       .findOne({ _id: ObjectId(fileId), userId });
     if (!file) return res.status(404).send({ error: 'Not found' });
 
-    return res.status(200).send({
+    return res.send({
       id: file._id,
       userId: file.userId,
       name: file.name,
