@@ -57,16 +57,16 @@ const FilesController = {
 
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true }, (error) => {
-        if (error) return res.send(400).send({ error: 'Unable to create the directory' });
-        return true;
+        if (!error) return true;
+        return false;
       });
     }
 
     const fileData = Buffer.from(data, 'base64');
 
     fs.writeFile(filePath, fileData, (error) => {
-      if (error) return res.status(400).send({ error: 'Unable to store the file' });
-      return true;
+      if (!error) return true;
+      return false;
     });
 
     fileToStore.localPath = filePath;
