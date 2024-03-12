@@ -4,8 +4,8 @@ import fs from 'fs';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
-class FilesController {
-  static async postUpload(req, res) {
+const FilesController = {
+  async postUpload(req, res) {
     const token = req.headers['x-token'];
     // console.log('token: '+token);
     if (!token) return res.status(401).send({ error: 'Unauthorized' });
@@ -96,7 +96,7 @@ class FilesController {
       isPublic: fileToStore.isPublic,
       parentId: fileToStore.parentId,
     });
-  }
-}
+  },
+};
 
 export default FilesController;
