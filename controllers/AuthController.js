@@ -20,7 +20,7 @@ const AuthController = {
 
       const token = uuidv4();
       const key = `auth_${token}`;
-      await redisClient.set(key, user._id.toString(), 864000);
+      await redisClient.set(key, user._id.toString(), 86400);
       return res.status(200).send({ token });
     }
     return res.status(401).send({ error: 'Unauthorized' });
