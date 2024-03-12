@@ -22,8 +22,7 @@ class FilesController {
     const { data } = req.body;
     if (!data && type !== 'folder') return res.status(400).send({ error: 'Missing data' });
 
-    let parentId = req.body.parentId || 0;
-    if (parentId === '0') parentId = 0;
+    const parentId = req.body.parentId || 0;
 
     if (parentId) {
       const file = await dbClient.db
