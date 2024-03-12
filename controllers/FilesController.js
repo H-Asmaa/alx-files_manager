@@ -97,6 +97,70 @@ const FilesController = {
       parentId: fileToStore.parentId,
     });
   },
-};
 
+  async getShow(req, res) {
+    const token = req.headers['x-token'];
+    if (!token) return res.status(401).send({ error: 'Unauthorized' });
+
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) return res.status(401).send({ error: 'Unauthorized' });
+
+    const user = await dbClient.db
+      .collection('users')
+      .findOne({ _id: ObjectId(userId) });
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
+
+    const { fileId } = req.params;
+    const file = await dbClient.db
+      .collection('files')
+      .findOne({ _id: ObjectId(fileId), userId });
+    if (!file) return res.status(404).send({ error: 'Not found' });
+
+    return res.status(200).send({
+      id: file._id,
+      userId: file.userId,
+      name: file.name,
+      type: file.type,
+      isPublic: file.isPublic,
+      parentId: file.parentId,
+    });
+  },
+
+  async getIndex(req, res) {
+    const token = req.headers['x-token'];
+    if (!token) return res.status(401).send({ error: 'Unauthorized' });
+
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) return res.status(401).send({ error: 'Unauthorized' });
+
+    const user = await dbClient.db
+      .collection('users')
+      .findOne({ _id: ObjectId(userId) });
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
+
+    const { parentId = 0, page = 0 } = req.query;
+
+    const fileCount = await dbClient.db
+      .collection('files')
+      .countDocuments({
+        userId: ObjectId(userId),
+        parentId: ObjectId(parentId),
+      });
+    if (!fileCount) return res.status(200).send([]);
+
+    const maxPerPage = parseInt(page, 10) * 20;
+
+    const filesList = await dbClient.db.collection('files').aggregate([
+      {
+        $match: {
+          userId: ObjectId(userId),
+          parentId: ObjectId(parentId),
+        },
+      },
+      { $skip: maxPerPage },
+      { $limit: 20 },
+    ]).toArray();
+    return res.status(200).send(filesList);
+  },
+};
 export default FilesController;
