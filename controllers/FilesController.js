@@ -99,6 +99,7 @@ const FilesController = {
   },
 
   async getShow(req, res) {
+    console.log('this is getShow');
     const token = req.headers['x-token'];
     if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
@@ -110,10 +111,10 @@ const FilesController = {
       .findOne({ _id: ObjectId(userId) });
     if (!user) return res.status(401).send({ error: 'Unauthorized' });
 
-    const { fileId } = req.params;
+    const { parentId } = req.query;
     const file = await dbClient.db
       .collection('files')
-      .findOne({ _id: ObjectId(fileId), userId });
+      .findOne({ _id: ObjectId(parentId), userId: user._id });
     if (!file) return res.status(404).send({ error: 'Not found' });
 
     return res.send({
@@ -127,40 +128,48 @@ const FilesController = {
   },
 
   async getIndex(req, res) {
+    console.log('this is getIndex');
     const token = req.headers['x-token'];
+    console.log(token);
     if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
     const userId = await redisClient.get(`auth_${token}`);
+    console.log(userId);
     if (!userId) return res.status(401).send({ error: 'Unauthorized' });
 
     const user = await dbClient.db
       .collection('users')
       .findOne({ _id: ObjectId(userId) });
+    console.log(user);
     if (!user) return res.status(401).send({ error: 'Unauthorized' });
 
     const { parentId = 0, page = 0 } = req.query;
+    console.log(parentId);
+    console.log(page);
 
     const fileCount = await dbClient.db
       .collection('files')
       .countDocuments({
         userId: ObjectId(userId),
-        parentId: ObjectId(parentId),
+        parentId,
       });
+    console.log('fileCount: '+fileCount);
     if (!fileCount) return res.status(200).send([]);
 
     const maxPerPage = parseInt(page, 10) * 20;
+    console.log('max: '+maxPerPage);
 
-    const filesList = await dbClient.db.collection('files').aggregate([
-      {
-        $match: {
-          userId: ObjectId(userId),
-          parentId: ObjectId(parentId),
-        },
-      },
-      { $skip: maxPerPage },
-      { $limit: 20 },
-    ]).toArray();
+    const filesList = await dbClient.db.collection('files')
+      .find({
+        userId: ObjectId(userId),
+        parentId,
+      })
+      .skip(maxPerPage)
+      .limit(20)
+      .toArray();
+    console.log(filesList);
     return res.status(200).send(filesList);
   },
 };
+
 export default FilesController;
