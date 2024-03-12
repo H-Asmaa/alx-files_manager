@@ -4,8 +4,8 @@ import fs from 'fs';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
-const FilesController = {
-  async postUpload(req, res) {
+class FilesController {
+  static async postUpload(req, res) {
     const token = req.headers['x-token'];
     if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
@@ -26,7 +26,9 @@ const FilesController = {
     if (parentId === '0') parentId = 0;
 
     if (parentId) {
-      const file = await dbClient.db.collection('files').findOne({ _id: ObjectId(parentId) });
+      const file = await dbClient.db
+        .collection('files')
+        .findOne({ _id: ObjectId(parentId) });
       if (!file) return res.status(400).send({ error: 'Parent not found' });
       if (file.type !== 'folder') return res.status(400).send({ error: 'Parent is not a folder' });
     }
@@ -81,7 +83,7 @@ const FilesController = {
       isPublic: fileToStore.isPublic,
       parentId: fileToStore.parentId,
     });
-  },
-};
+  }
+}
 
 export default FilesController;
