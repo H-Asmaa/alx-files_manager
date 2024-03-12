@@ -168,7 +168,11 @@ const FilesController = {
       .limit(20)
       .toArray();
     // console.log(filesList);
-    return res.status(200).send(filesList);
+
+    return res.status(200).send(filesList.map((file) => {
+      const { _id, ...rest } = file;
+      return { id: _id, ...rest };
+    }));
   },
 };
 
