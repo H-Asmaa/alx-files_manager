@@ -46,7 +46,7 @@ const FilesController = {
       name,
       type,
       isPublic,
-      parentId: ObjectId(parentId),
+      parentId,
     };
     // console.log('fileToStore: '+fileToStore);
 
@@ -176,6 +176,22 @@ const FilesController = {
       return { id: _id, ...rest };
     }));
   },
+
+  // async putPublish(req, res){
+  //   const token = req.headers['x-token'];
+  //   if (!token) return res.status(401).send({ error: 'Unauthorized' });
+
+  //   const userId = await redisClient.get(`auth_${token}`);
+  //   if (!userId) return res.status(401).send({ error: 'Unauthorized' });
+
+  //   const fileId = req.params.id;
+  //   if (!fileId) return res.status(401).send({ error: 'Unauthorized' });
+
+  //   const file = await dbClient.db.collection('files').findOne(
+  //     { _id: ObjectId(fileId), userId: ObjectId(userId) });
+  //   if (!file) return res.status(401).send({ error: 'Unauthorized' });
+  // },
+
 };
 
 export default FilesController;
