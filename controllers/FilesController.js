@@ -99,7 +99,7 @@ const FilesController = {
   },
 
   async getShow(req, res) {
-    console.log('this is getShow');
+    // console.log('this is getShow');
     const token = req.headers['x-token'];
     if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
@@ -128,24 +128,24 @@ const FilesController = {
   },
 
   async getIndex(req, res) {
-    console.log('this is getIndex');
+    // console.log('this is getIndex');
     const token = req.headers['x-token'];
-    console.log(token);
+    // console.log(token);
     if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
     const userId = await redisClient.get(`auth_${token}`);
-    console.log(userId);
+    // console.log(userId);
     if (!userId) return res.status(401).send({ error: 'Unauthorized' });
 
     const user = await dbClient.db
       .collection('users')
       .findOne({ _id: ObjectId(userId) });
-    console.log(user);
+    // console.log(user);
     if (!user) return res.status(401).send({ error: 'Unauthorized' });
 
     const { parentId = 0, page = 0 } = req.query;
-    console.log(parentId);
-    console.log(page);
+    // console.log(parentId);
+    // console.log(page);
 
     const fileCount = await dbClient.db
       .collection('files')
@@ -153,11 +153,11 @@ const FilesController = {
         userId: ObjectId(userId),
         parentId,
       });
-    console.log('fileCount: '+fileCount);
+    // console.log('fileCount: '+fileCount);
     if (!fileCount) return res.status(200).send([]);
 
     const maxPerPage = parseInt(page, 10) * 20;
-    console.log('max: '+maxPerPage);
+    // console.log('max: '+maxPerPage);
 
     const filesList = await dbClient.db.collection('files')
       .find({
@@ -167,7 +167,7 @@ const FilesController = {
       .skip(maxPerPage)
       .limit(20)
       .toArray();
-    console.log(filesList);
+    // console.log(filesList);
     return res.status(200).send(filesList);
   },
 };
