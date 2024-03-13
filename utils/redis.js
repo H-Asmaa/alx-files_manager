@@ -1,4 +1,3 @@
-#!/usr/bin/node
 import redis from 'redis';
 import { promisify } from 'util';
 
