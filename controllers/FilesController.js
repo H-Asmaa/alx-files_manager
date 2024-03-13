@@ -6,10 +6,10 @@ import Queue from 'bull';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
+const fileQueue = new Queue('fileQueue');
+
 const FilesController = {
   async postUpload(req, res) {
-    const fileQueue = new Queue('fileQueue');
-
     const token = req.headers['x-token'];
     if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
