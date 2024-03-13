@@ -5,6 +5,7 @@ import fs from 'fs';
 import dbClient from './utils/db';
 
 const fileQueue = new Queue('fileQueue');
+const userQueue = new Queue('userQueue');
 
 async function generateThumbnail(inputPath, width) {
   try {
@@ -22,7 +23,9 @@ fileQueue.process(async (job) => {
     if (!fileId) throw new Error('Missing fileId');
     if (!userId) throw new Error('Missing userId');
 
-    const file = await dbClient.db.collection('files').findOne({ _id: ObjectId(fileId), userId: ObjectId(userId) });
+    const file = await dbClient.db
+      .collection('files')
+      .findOne({ _id: ObjectId(fileId), userId: ObjectId(userId) });
     if (!file) throw new Error('File not found');
 
     const inputPath = file.path;
@@ -33,4 +36,13 @@ fileQueue.process(async (job) => {
   } catch (error) {
     throw new Error(`Error processing job: ${error.message}`);
   }
+});
+
+userQueue.process(async (job) => {
+  const { userId } = job.data;
+  if (!userId) throw new Error('Missing userId');
+
+  const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
+  if (!user) throw new Error('User not found');
+  console.log(`Welcome ${user.email}!`);
 });
