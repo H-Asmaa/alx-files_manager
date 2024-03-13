@@ -2,11 +2,14 @@ import { ObjectId } from 'mongodb';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs';
 import mime from 'mime-types';
+import Queue from 'bull';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
 const FilesController = {
   async postUpload(req, res) {
+    const fileQueue = new Queue('fileQueue');
+
     const token = req.headers['x-token'];
     if (!token) return res.status(401).send({ error: 'Unauthorized' });
 
@@ -72,6 +75,9 @@ const FilesController = {
 
     fileToStore.localPath = filePath;
     const file = await dbClient.db.collection('files').insertOne(fileToStore);
+
+    fileQueue.add({ userId: fileToStore.userId, fileId: file.insertedId });
+
     return res.status(201).send({
       id: file.insertedId,
       userId: fileToStore.userId,
@@ -202,6 +208,7 @@ const FilesController = {
 
   async getFile(req, res) {
     const documentId = req.params.id;
+    const size = req.query.size || 0;
 
     const document = await dbClient.db.collection('files').findOne({ _id: ObjectId(documentId) });
     if (!document) return res.status(404).send({ error: 'Not found' });
@@ -220,9 +227,11 @@ const FilesController = {
 
     if (document.type === 'folder') return res.status(400).send({ error: "A folder doesn't have content" });
 
+    const path = size === 0 ? document.localPath : `${document.localPath}_${size}`;
+
     try {
       const mimeType = mime.lookup(document.name);
-      const content = fs.readFileSync(document.localPath);
+      const content = fs.readFileSync(path);
       res.setHeader('Content-Type', mimeType);
       return res.status(200).send(content);
     } catch (error) {
