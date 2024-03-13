@@ -144,16 +144,17 @@ const FilesController = {
     // console.log(user);
     if (!user) return res.status(401).send({ error: 'Unauthorized' });
 
-    const { parentId = 0, page = 0 } = req.query;
+    let { parentId = '0' } = req.query;
+    const { page } = req.query || 0;
     // console.log(parentId);
     // console.log(page);
 
+    if (parentId !== '0') parentId = ObjectId(parentId);
     const fileCount = await dbClient.db
       .collection('files')
       .countDocuments({
         userId: ObjectId(userId),
         parentId,
-        type: 'folder',
       });
     // console.log('fileCount: '+fileCount);
     if (!fileCount) return res.status(200).send([]);
